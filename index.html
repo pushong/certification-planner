@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certification Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+    </style>
+</head>
+<body class="gradient-bg text-gray-800">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Certification Study Planner</h1>
+            <p class="text-md text-gray-600 mt-2">Your roadmap to success. All times are in PST.</p>
+        </header>
+
+        <div id="planner-container" class="space-y-6">
+            <!-- Certification cards will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        // Array of certification objects. Dates are in ISO 8601 format for PST (UTC-8).
+        const certifications = [
+            {
+                name: "CompTIA CySA+",
+                date: "2025-09-12T20:45:00-08:00", // Original: Sept 13, 12:45 PM PHT
+                originalInfo: "Sept 13, 2025 12:45 PM Asia/Manila"
+            },
+            {
+                name: "TryHackMe SAL 1",
+                date: "2025-10-15T00:00:00-08:00", // Assuming start of day
+                originalInfo: "October 15, 2025"
+            },
+            {
+                name: "VMware vSphere 8.x Professional",
+                subtitle: "2V0-21.23",
+                date: "2025-11-19T06:45:00-08:00", // Original: Nov 19, 10:45 PM PHT
+                originalInfo: "Nov 19, 2025 10:45 PM Asia/Manila"
+            },
+            {
+                name: "VMware Cloud Foundation 9.0 Architect",
+                subtitle: "2V0-13.25",
+                date: "2025-11-20T20:15:00-08:00", // Original: Nov 21, 12:15 PM PHT
+                originalInfo: "Nov 21, 2025 12:15 PM Asia/Manila"
+            },
+            {
+                name: "VMware NSX 4.X Professional V2",
+                subtitle: "2V0-41.24",
+                date: "2025-11-21T06:45:00-08:00", // Original: Nov 21, 10:45 PM PHT
+                originalInfo: "Nov 21, 2025 10:45 PM Asia/Manila"
+            },
+            {
+                name: "AWS Certified Solutions Architect - Professional",
+                subtitle: "SAP-C02",
+                date: "2025-12-01T07:15:00-08:00", // Original: Dec 1, 11:15 PM PHT
+                originalInfo: "Dec 1, 2025 11:15 PM Asia/Manila"
+            },
+            {
+                name: "CompTIA SecX",
+                date: "2025-12-19T21:15:00-08:00", // Original: Dec 20, 1:15 PM PHT
+                originalInfo: "Dec 20, 2025 1:15 PM Asia/Manila"
+            }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const container = document.getElementById('planner-container');
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Formats a date object into a readable string.
+         * @param {Date} dateObj - The date object to format.
+         * @returns {string} - Formatted date string (e.g., "Friday, September 12, 2025 at 8:45 PM PST").
+         */
+        function formatExamDate(dateObj) {
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                timeZoneName: 'short'
+            };
+            // Use a locale that commonly uses PST abbreviation
+            return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+        }
+
+        /**
+         * Calculates the time remaining until a target date.
+         * @param {string} targetDate - The target date in ISO 8601 format.
+         * @returns {object|null} - An object with days, hours, minutes, seconds, or null if the date has passed.
+         */
+        function getTimeRemaining(targetDate) {
+            const total = Date.parse(targetDate) - Date.now();
+            if (total <= 0) {
+                return null;
+            }
+            const seconds = Math.floor((total / 1000) % 60);
+            const minutes = Math.floor((total / 1000 / 60) % 60);
+            const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(total / (1000 * 60 * 60 * 24));
+            return { days, hours, minutes, seconds };
+        }
+
+        /**
+         * Creates and appends a certification card to the container.
+         * @param {object} cert - The certification object.
+         * @param {number} index - The index of the certification for unique IDs.
+         */
+        function createCertCard(cert, index) {
+            const examDate = new Date(cert.date);
+            const card = document.createElement('div');
+            card.className = "bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-200 transition-all duration-300 hover:shadow-xl hover:border-blue-300";
+            card.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-blue-800">${cert.name}</h2>
+                        ${cert.subtitle ? `<p class="text-sm text-gray-500 font-medium">${cert.subtitle}</p>` : ''}
+                        <p class="text-sm text-gray-600 mt-2">
+                            <span class="font-semibold">Exam Date:</span> ${formatExamDate(examDate)}
+                        </p>
+                    </div>
+                    <!-- Countdown Timer -->
+                    <div id="timer-${index}" class="flex items-center space-x-2 sm:space-x-4 text-center mt-4 md:mt-0 bg-gray-100 p-3 rounded-lg">
+                        <!-- Countdown units will be generated here -->
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-md font-semibold text-gray-700 mb-2">Study Checklist</h3>
+                    <div class="space-y-2 text-sm">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-700">Review official exam objectives</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-700">Complete practice exams</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-700">Identify and review weak areas</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+
+        /**
+         * Updates the countdown timer for a specific certification.
+         * @param {object} cert - The certification object.
+         * @param {number} index - The index of the certification.
+         */
+        function updateTimer(cert, index) {
+            const timerElement = document.getElementById(`timer-${index}`);
+            if (!timerElement) return;
+
+            const t = getTimeRemaining(cert.date);
+
+            if (t) {
+                timerElement.innerHTML = `
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.days).padStart(2, '0')}</span><span class="text-xs text-gray-500">Days</span></div>
+                    <div class="text-xl sm:text-2xl font-bold text-gray-400">:</div>
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.hours).padStart(2, '0')}</span><span class="text-xs text-gray-500">Hours</span></div>
+                    <div class="text-xl sm:text-2xl font-bold text-gray-400">:</div>
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.minutes).padStart(2, '0')}</span><span class="text-xs text-gray-500">Mins</span></div>
+                    <div class="text-xl sm:text-2xl font-bold text-gray-400">:</div>
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.seconds).padStart(2, '0')}</span><span class="text-xs text-gray-500">Secs</span></div>
+                `;
+            } else {
+                timerElement.innerHTML = `<div class="text-lg font-bold text-green-600">Exam day has arrived! Good luck!</div>`;
+                clearInterval(intervals[index]); // Stop the timer
+            }
+        }
+
+        // --- INITIALIZATION ---
+        const intervals = [];
+
+        // Sort certifications by date
+        certifications.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Create cards and start timers
+        certifications.forEach((cert, index) => {
+            createCertCard(cert, index);
+            updateTimer(cert, index); // Initial call to display immediately
+            intervals[index] = setInterval(() => updateTimer(cert, index), 1000);
+        });
+    </script>
+</body>
+</html>
