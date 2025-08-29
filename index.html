@@ -3,290 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Certification Planner</title>
+    <title>Certification Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
         .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        .dark .gradient-bg {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        }
-        .progress-ring-circle {
-            transition: stroke-dashoffset 0.35s;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-        .checkbox-custom:checked + span {
-            text-decoration: line-through;
-            opacity: 0.7;
-        }
-        .task-category {
-            border-left: 3px solid #3b82f6;
-            padding-left: 12px;
-            margin-bottom: 12px;
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .dark .glass-effect {
-            background: rgba(30, 30, 30, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        .streak-fire {
-            color: #ff6b6b;
-            animation: pulse 1s infinite;
-        }
-        .notification-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .study-timer {
-            font-variant-numeric: tabular-nums;
-        }
-        .achievement-unlock {
-            animation: slideInRight 0.5s ease-out;
-        }
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .tooltip {
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .tooltip-trigger:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
     </style>
 </head>
-<body class="gradient-bg text-gray-800 dark:text-gray-200 transition-colors duration-300">
-    <!-- Header with Enhanced Features -->
+<body class="gradient-bg text-gray-800">
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header class="glass-effect rounded-xl p-6 mb-6 shadow-xl">
-            <div class="flex flex-wrap items-center justify-between mb-4">
-                <div>
-                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white flex items-center">
-                        <i class="fas fa-graduation-cap mr-3 text-blue-600 dark:text-blue-400"></i>
-                        Certification Study Planner
-                    </h1>
-                    <p class="text-md text-gray-600 dark:text-gray-400 mt-2">Your roadmap to success. All times in PST.</p>
-                </div>
-                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
-                    <!-- Dark Mode Toggle -->
-                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        <i class="fas fa-moon dark:hidden"></i>
-                        <i class="fas fa-sun hidden dark:inline"></i>
-                    </button>
-                    <!-- Export/Import -->
-                    <button onclick="exportProgress()" class="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition" title="Export Progress">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button onclick="document.getElementById('importFile').click()" class="p-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition" title="Import Progress">
-                        <i class="fas fa-upload"></i>
-                    </button>
-                    <input type="file" id="importFile" class="hidden" onchange="importProgress(event)" accept=".json">
-                </div>
-            </div>
-
-            <!-- Statistics Bar -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                <div class="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Study Streak</span>
-                        <i class="fas fa-fire streak-fire"></i>
-                    </div>
-                    <div class="text-2xl font-bold" id="studyStreak">0 days</div>
-                </div>
-                <div class="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Total Progress</span>
-                        <i class="fas fa-chart-line text-green-600 dark:text-green-400"></i>
-                    </div>
-                    <div class="text-2xl font-bold" id="totalProgress">0%</div>
-                </div>
-                <div class="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Study Time Today</span>
-                        <i class="fas fa-clock text-purple-600 dark:text-purple-400"></i>
-                    </div>
-                    <div class="text-2xl font-bold study-timer" id="studyTimeToday">00:00</div>
-                </div>
-                <div class="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Achievements</span>
-                        <i class="fas fa-trophy text-yellow-500 dark:text-yellow-400"></i>
-                    </div>
-                    <div class="text-2xl font-bold" id="achievementCount">0/12</div>
-                </div>
-            </div>
-
-            <!-- Motivational Quote -->
-            <div class="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg p-3 mb-4">
-                <p class="text-sm italic text-center" id="motivationalQuote">
-                    <i class="fas fa-quote-left mr-2"></i>
-                    <span id="quoteText">Success is not final, failure is not fatal: it is the courage to continue that counts.</span>
-                    <i class="fas fa-quote-right ml-2"></i>
-                </p>
-            </div>
-
-            <!-- Filter and Sort Controls -->
-            <div class="flex flex-wrap gap-2 items-center">
-                <select id="filterSelect" onchange="filterCertifications()" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600">
-                    <option value="all">All Certifications</option>
-                    <option value="security">Security</option>
-                    <option value="vmware">VMware</option>
-                    <option value="cloud">Cloud</option>
-                    <option value="upcoming">Upcoming (< 30 days)</option>
-                    <option value="inprogress">In Progress</option>
-                </select>
-                <select id="sortSelect" onchange="sortCertifications()" class="px-3 py-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600">
-                    <option value="date">Sort by Date</option>
-                    <option value="progress">Sort by Progress</option>
-                    <option value="name">Sort by Name</option>
-                </select>
-                <button onclick="toggleCalendarView()" class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition">
-                    <i class="fas fa-calendar-alt mr-2"></i>Calendar View
-                </button>
-                <button onclick="clearAllProgress()" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition ml-auto">
-                    <i class="fas fa-trash mr-2"></i>Reset All
-                </button>
-            </div>
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Certification Study Planner</h1>
+            <p class="text-md text-gray-600 mt-2">Your roadmap to success. All times are in PST.</p>
         </header>
 
-        <!-- Calendar View (Hidden by default) -->
-        <div id="calendarView" class="hidden glass-effect rounded-xl p-6 mb-6 shadow-xl">
-            <h2 class="text-xl font-bold mb-4">Exam Calendar</h2>
-            <div id="calendarContent" class="grid grid-cols-7 gap-2">
-                <!-- Calendar will be generated here -->
-            </div>
-        </div>
-
-        <!-- Study Timer Widget -->
-        <div class="glass-effect rounded-xl p-4 mb-6 shadow-xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold">
-                    <i class="fas fa-stopwatch mr-2 text-blue-600 dark:text-blue-400"></i>
-                    Study Session Timer
-                </h3>
-                <div class="flex items-center space-x-4">
-                    <div class="text-3xl font-bold study-timer" id="sessionTimer">00:00:00</div>
-                    <button onclick="toggleTimer()" id="timerBtn" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
-                        <i class="fas fa-play mr-2"></i>Start
-                    </button>
-                    <button onclick="resetTimer()" class="px-4 py-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition">
-                        <i class="fas fa-redo mr-2"></i>Reset
-                    </button>
-                </div>
-            </div>
-            <!-- Pomodoro Presets -->
-            <div class="flex gap-2 mt-3">
-                <button onclick="setPomodoro(25)" class="text-xs px-3 py-1 rounded bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800">
-                    25 min Focus
-                </button>
-                <button onclick="setPomodoro(5)" class="text-xs px-3 py-1 rounded bg-green-100 dark:bg-green-900 hover:bg-green-200 dark:hover:bg-green-800">
-                    5 min Break
-                </button>
-                <button onclick="setPomodoro(15)" class="text-xs px-3 py-1 rounded bg-purple-100 dark:bg-purple-900 hover:bg-purple-200 dark:hover:bg-purple-800">
-                    15 min Long Break
-                </button>
-            </div>
-        </div>
-
-        <!-- Achievements Panel -->
-        <div id="achievementsPanel" class="glass-effect rounded-xl p-4 mb-6 shadow-xl">
-            <h3 class="text-lg font-semibold mb-3">
-                <i class="fas fa-medal mr-2 text-yellow-500 dark:text-yellow-400"></i>
-                Achievements
-            </h3>
-            <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="achievementGrid">
-                <!-- Achievements will be generated here -->
-            </div>
-        </div>
-
-        <!-- Main Content -->
         <div id="planner-container" class="space-y-6">
             <!-- Certification cards will be dynamically inserted here -->
         </div>
     </div>
 
-    <!-- Achievement Notification -->
-    <div id="achievementNotification" class="hidden fixed bottom-4 right-4 bg-yellow-500 text-white p-4 rounded-lg shadow-xl achievement-unlock">
-        <div class="flex items-center">
-            <i class="fas fa-trophy text-2xl mr-3"></i>
-            <div>
-                <div class="font-bold">Achievement Unlocked!</div>
-                <div id="achievementMessage" class="text-sm"></div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- ENHANCED DATA STRUCTURE ---
+        // --- DATA ---
+        // Array of certification objects. Dates are in ISO 8601 format for PST (UTC-8).
         const certifications = [
-            { name: "CompTIA CySA+", date: "2025-09-12T20:45:00-08:00", originalInfo: "Sept 13, 2025 12:45 PM Asia/Manila", type: "security", difficulty: 3, vendor: "CompTIA", examCode: "CS0-003", cost: "$392", resources: [{ name: "Official Study Guide", url: "#", type: "book" }, { name: "Practice Exams", url: "#", type: "exam" }, { name: "Video Course", url: "#", type: "video" }] },
-            { name: "TryHackMe SAL 1", date: "2025-10-15T00:00:00-08:00", originalInfo: "October 15, 2025", type: "security", difficulty: 2, vendor: "TryHackMe", examCode: "SAL-001", cost: "$150", resources: [{ name: "TryHackMe Platform", url: "#", type: "lab" }, { name: "SAL Learning Path", url: "#", type: "path" }] },
-            { name: "VMware vSphere 8.x Professional", subtitle: "2V0-21.23", date: "2025-11-19T06:45:00-08:00", originalInfo: "Nov 19, 2025 10:45 PM Asia/Manila", type: "vmware", difficulty: 4, vendor: "VMware", examCode: "2V0-21.23", cost: "$250", resources: [{ name: "vSphere Documentation", url: "#", type: "docs" }, { name: "HOL Labs", url: "#", type: "lab" }] },
-            { name: "VMware Cloud Foundation 9.0 Architect", subtitle: "2V0-13.25", date: "2025-11-20T20:15:00-08:00", originalInfo: "Nov 21, 2025 12:15 PM Asia/Manila", type: "vmware", difficulty: 5, vendor: "VMware", examCode: "2V0-13.25", cost: "$250", resources: [] },
-            { name: "VMware NSX 4.X Professional V2", subtitle: "2V0-41.24", date: "2025-11-21T06:45:00-08:00", originalInfo: "Nov 21, 2025 10:45 PM Asia/Manila", type: "vmware", difficulty: 4, vendor: "VMware", examCode: "2V0-41.24", cost: "$250", resources: [] },
-            { name: "AWS Certified Solutions Architect - Professional", subtitle: "SAP-C02", date: "2025-12-01T07:15:00-08:00", originalInfo: "Dec 1, 2025 11:15 PM Asia/Manila", type: "cloud", difficulty: 5, vendor: "AWS", examCode: "SAP-C02", cost: "$300", resources: [{ name: "AWS Documentation", url: "#", type: "docs" }, { name: "Whitepapers", url: "#", type: "book" }, { name: "Re:Invent Videos", url: "#", type: "video" }] },
-            { name: "CompTIA SecX", date: "2025-12-19T21:15:00-08:00", originalInfo: "Dec 20, 2025 1:15 PM Asia/Manila", type: "security", difficulty: 5, vendor: "CompTIA", examCode: "CAS-005", cost: "$554", resources: [] }
+            {
+                name: "CompTIA CySA+",
+                date: "2025-09-12T20:45:00-08:00", // Original: Sept 13, 12:45 PM PHT
+                originalInfo: "Sept 13, 2025 12:45 PM Asia/Manila"
+            },
+            {
+                name: "TryHackMe SAL 1",
+                date: "2025-10-15T00:00:00-08:00", // Assuming start of day
+                originalInfo: "October 15, 2025"
+            },
+            {
+                name: "VMware vSphere 8.x Professional",
+                subtitle: "2V0-21.23",
+                date: "2025-11-19T06:45:00-08:00", // Original: Nov 19, 10:45 PM PHT
+                originalInfo: "Nov 19, 2025 10:45 PM Asia/Manila"
+            },
+            {
+                name: "VMware Cloud Foundation 9.0 Architect",
+                subtitle: "2V0-13.25",
+                date: "2025-11-20T20:15:00-08:00", // Original: Nov 21, 12:15 PM PHT
+                originalInfo: "Nov 21, 2025 12:15 PM Asia/Manila"
+            },
+            {
+                name: "VMware NSX 4.X Professional V2",
+                subtitle: "2V0-41.24",
+                date: "2025-11-21T06:45:00-08:00", // Original: Nov 21, 10:45 PM PHT
+                originalInfo: "Nov 21, 2025 10:45 PM Asia/Manila"
+            },
+            {
+                name: "AWS Certified Solutions Architect - Professional",
+                subtitle: "SAP-C02",
+                date: "2025-12-01T07:15:00-08:00", // Original: Dec 1, 11:15 PM PHT
+                originalInfo: "Dec 1, 2025 11:15 PM Asia/Manila"
+            },
+            {
+                name: "CompTIA SecX",
+                date: "2025-12-19T21:15:00-08:00", // Original: Dec 20, 1:15 PM PHT
+                originalInfo: "Dec 20, 2025 1:15 PM Asia/Manila"
+            }
         ];
-        const checklistTemplates = { security: { "Preparation": ["Download and review official exam objectives", "Create a study schedule and timeline", "Join online study groups or forums", "Gather all study materials and resources", "Set up notification reminders"], "Core Study": ["Complete official training course/materials", "Read recommended textbooks or guides", "Watch video tutorials and lectures", "Take detailed notes on key concepts", "Review security frameworks and best practices", "Study incident response procedures", "Learn threat intelligence concepts", "Master security tools and technologies"], "Hands-on Practice": ["Set up home lab environment", "Complete hands-on labs and exercises", "Practice with security tools", "Work through real-world scenarios", "Complete capture-the-flag challenges"], "Assessment": ["Take initial practice exam to gauge readiness", "Complete at least 3 full practice exams", "Review and understand all incorrect answers", "Score consistently above 85% on practice exams", "Create flashcards for weak areas", "Time yourself on practice questions"], "Final Preparation": ["Review exam day procedures and requirements", "Do final review of notes and flashcards", "Get proper rest the night before", "Prepare exam day materials (ID, confirmation, etc.)", "Review exam-taking strategies"] }, vmware: { "Preparation": ["Review VMware exam blueprint", "Download official study guide", "Set up VMware home lab", "Install required VMware products", "Join VMUG community"], "Core Study": ["Complete VMware official training", "Study vSphere architecture and components", "Learn networking and storage concepts", "Review HA, DRS, and vMotion configurations", "Study resource management and optimization", "Learn troubleshooting methodologies", "Master vSAN configurations", "Study Update Manager and lifecycle"], "Hands-on Practice": ["Configure vCenter and ESXi hosts", "Practice VM deployment and management", "Configure networking and storage", "Implement security and compliance features", "Practice backup and recovery procedures", "Configure distributed switches", "Implement resource pools and policies"], "Assessment": ["Complete VMware HOL (Hands-On Labs)", "Take official practice exams", "Review configuration maximums", "Practice command-line operations", "Document common troubleshooting steps", "Review best practices guides"], "Final Preparation": ["Review all lab exercises", "Memorize key PowerCLI commands", "Review best practices documentation", "Prepare for exam interface", "Practice time management"] }, cloud: { "Preparation": ["Create AWS free tier account", "Download AWS exam guide", "Review AWS Well-Architected Framework", "Set up AWS CLI and SDK", "Configure billing alerts"], "Core Study": ["Study all core AWS services in depth", "Learn architectural best practices", "Understand cost optimization strategies", "Study security and compliance features", "Learn migration strategies", "Review disaster recovery patterns", "Study hybrid cloud architectures", "Master serverless architectures", "Learn container services (ECS, EKS)"], "Hands-on Practice": ["Build multi-tier applications", "Implement auto-scaling solutions", "Configure VPCs and networking", "Set up monitoring and alerting", "Practice with CloudFormation/Terraform", "Implement CI/CD pipelines", "Configure cross-region replication", "Build serverless applications"], "Assessment": ["Complete AWS practice exams", "Review AWS whitepapers", "Take third-party practice tests", "Review case studies and scenarios", "Document architecture patterns", "Practice with exam simulators"], "Final Preparation": ["Review service limits and quotas", "Practice time management strategies", "Review complex scenario questions", "Prepare for exam environment", "Review FAQs for all services"] } };
-        const quotes = ["Success is not final, failure is not fatal: it is the courage to continue that counts.", "The expert in anything was once a beginner.", "Every expert was once a disaster.", "The only way to do great work is to love what you do.", "Believe you can and you're halfway there.", "Your limitation—it's only your imagination.", "Great things never come from comfort zones.", "Success doesn't just find you. You have to go out and get it.", "The harder you work for something, the greater you'll feel when you achieve it.", "Don't stop when you're tired. Stop when you're done."];
-        const achievements = [{ id: 'first_task', name: 'First Step', icon: 'fa-shoe-prints', description: 'Complete your first task', unlocked: false }, { id: 'streak_7', name: 'Week Warrior', icon: 'fa-fire', description: '7-day study streak', unlocked: false }, { id: 'streak_30', name: 'Monthly Master', icon: 'fa-fire-flame-curved', description: '30-day study streak', unlocked: false }, { id: 'complete_cert', name: 'Ready to Rock', icon: 'fa-check-circle', description: 'Complete all tasks for one certification', unlocked: false }, { id: 'night_owl', name: 'Night Owl', icon: 'fa-moon', description: 'Study after 10 PM', unlocked: false }, { id: 'early_bird', name: 'Early Bird', icon: 'fa-sun', description: 'Study before 6 AM', unlocked: false }, { id: 'marathon', name: 'Marathon Runner', icon: 'fa-running', description: 'Study for 4+ hours in one day', unlocked: false }, { id: 'consistent', name: 'Consistency King', icon: 'fa-crown', description: 'Study every day for a week', unlocked: false }, { id: 'multi_tasker', name: 'Multi-Tasker', icon: 'fa-tasks', description: 'Work on 3 certifications in one day', unlocked: false }, { id: 'note_taker', name: 'Note Master', icon: 'fa-sticky-note', description: 'Add notes to 5 certifications', unlocked: false }, { id: 'resource_hunter', name: 'Resource Hunter', icon: 'fa-book', description: 'Add 10 custom resources', unlocked: false }, { id: 'halfway', name: 'Halfway Hero', icon: 'fa-star-half-alt', description: 'Reach 50% progress on any certification', unlocked: false }];
-        
-        // Global variables
-        let timerInterval = null;
-        let sessionSeconds = 0;
-        let pomodoroInterval = null;
-        // Default to dark mode if no preference is set
-        let isDarkMode = localStorage.getItem('darkMode') === 'false' ? false : true;
-        let currentFilter = 'all';
-        let currentSort = 'date';
 
-        // Initialize dark mode on page load
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-        }
+        // --- DOM ELEMENTS ---
+        const container = document.getElementById('planner-container');
 
         // --- FUNCTIONS ---
+
+        /**
+         * Formats a date object into a readable string.
+         * @param {Date} dateObj - The date object to format.
+         * @returns {string} - Formatted date string (e.g., "Friday, September 12, 2025 at 8:45 PM PST").
+         */
         function formatExamDate(dateObj) {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', timeZoneName: 'short' };
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                timeZoneName: 'short'
+            };
+            // Use a locale that commonly uses PST abbreviation
             return new Intl.DateTimeFormat('en-US', options).format(dateObj);
         }
 
+        /**
+         * Calculates the time remaining until a target date.
+         * @param {string} targetDate - The target date in ISO 8601 format.
+         * @returns {object|null} - An object with days, hours, minutes, seconds, or null if the date has passed.
+         */
         function getTimeRemaining(targetDate) {
             const total = Date.parse(targetDate) - Date.now();
-            if (total <= 0) return null;
+            if (total <= 0) {
+                return null;
+            }
             const seconds = Math.floor((total / 1000) % 60);
             const minutes = Math.floor((total / 1000 / 60) % 60);
             const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
@@ -294,366 +113,89 @@
             return { days, hours, minutes, seconds };
         }
 
-        function saveProgress(certId, taskId, checked) {
-            const key = `cert_${certId}_task_${taskId}`;
-            if (checked) {
-                localStorage.setItem(key, 'true');
-                checkAchievements('task_complete');
-            } else {
-                localStorage.removeItem(key);
-            }
-            updateProgressBar(certId);
-            updateTotalProgress();
-            updateStudyStreak();
-        }
-
-        function loadProgress(certId, taskId) {
-            return localStorage.getItem(`cert_${certId}_task_${taskId}`) === 'true';
-        }
-
-        function saveNote(certId, note) {
-            localStorage.setItem(`cert_${certId}_note`, note);
-            checkAchievements('note_added');
-        }
-
-        function loadNote(certId) {
-            return localStorage.getItem(`cert_${certId}_note`) || '';
-        }
-
-        function updateProgressBar(certId) {
-            const checkboxes = document.querySelectorAll(`#checklist-${certId} input[type="checkbox"]`);
-            const progressBar = document.getElementById(`progress-${certId}`);
-            const progressText = document.getElementById(`progress-text-${certId}`);
-            const progressRing = document.getElementById(`progress-ring-${certId}`);
-            const percentageText = document.getElementById(`percentage-text-${certId}`);
-            const readinessText = document.getElementById(`readiness-text-${certId}`);
-            
-            const total = checkboxes.length;
-            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
-            const percentage = total > 0 ? Math.round((checked / total) * 100) : 0;
-            
-            if (progressBar) progressBar.style.width = `${percentage}%`;
-            if (progressText) progressText.textContent = `${checked}/${total} tasks completed (${percentage}%)`;
-            if (percentageText) percentageText.textContent = `${percentage}%`;
-
-            if (readinessText) {
-                let status = '', statusColor = '';
-                if (percentage === 100) {
-                    status = 'Fully Prepared! 🎯';
-                    statusColor = 'text-green-600 dark:text-green-400';
-                    checkAchievements('complete_cert');
-                } else if (percentage >= 75) {
-                    status = 'Almost Ready 💪';
-                    statusColor = 'text-blue-600 dark:text-blue-400';
-                } else if (percentage >= 50) {
-                    status = 'Making Progress 📈';
-                    statusColor = 'text-yellow-600 dark:text-yellow-400';
-                    checkAchievements('halfway');
-                } else if (percentage >= 25) {
-                    status = 'Getting Started 🚀';
-                    statusColor = 'text-orange-600 dark:text-orange-400';
-                } else {
-                    status = 'Just Beginning �';
-                    statusColor = 'text-gray-600 dark:text-gray-400';
-                }
-                readinessText.className = `text-sm font-semibold ${statusColor}`;
-                readinessText.textContent = status;
-            }
-
-            if (progressRing) {
-                const radius = 36;
-                const circumference = 2 * Math.PI * radius;
-                progressRing.style.strokeDashoffset = circumference - (percentage / 100) * circumference;
-            }
-        }
-
-        function updateTotalProgress() {
-            let totalTasks = 0, completedTasks = 0;
-            certifications.forEach((cert, index) => {
-                const template = checklistTemplates[cert.type] || checklistTemplates.security;
-                Object.values(template).forEach(tasks => {
-                    totalTasks += tasks.length;
-                    tasks.forEach((task, taskIndex) => {
-                        if (loadProgress(index, `task_${taskIndex}`)) completedTasks++;
-                    });
-                });
-            });
-            const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
-            document.getElementById('totalProgress').textContent = `${percentage}%`;
-        }
-
-        function toggleDarkMode() {
-            isDarkMode = !isDarkMode;
-            document.documentElement.classList.toggle('dark', isDarkMode);
-            localStorage.setItem('darkMode', isDarkMode);
-        }
-
-        function exportProgress() {
-            const data = { version: '1.0', timestamp: new Date().toISOString(), progress: {}, notes: {}, achievements: {}, studyTime: localStorage.getItem('totalStudyTime') || '0', streak: localStorage.getItem('studyStreak') || '0' };
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('cert_') || key.startsWith('achievement_')) {
-                    data.progress[key] = localStorage.getItem(key);
-                }
-            });
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `certification-progress-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function importProgress(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    Object.keys(data.progress).forEach(key => localStorage.setItem(key, data.progress[key]));
-                    if (data.studyTime) localStorage.setItem('totalStudyTime', data.studyTime);
-                    if (data.streak) localStorage.setItem('studyStreak', data.streak);
-                    location.reload();
-                } catch (err) {
-                    alert('Error importing file.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function clearAllProgress() {
-            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function toggleTimer() {
-            const btn = document.getElementById('timerBtn');
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                btn.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                btn.classList.replace('bg-red-600', 'bg-green-600');
-                btn.classList.replace('hover:bg-red-700', 'hover:bg-green-700');
-                const totalTime = parseInt(localStorage.getItem('totalStudyTime') || '0');
-                localStorage.setItem('totalStudyTime', totalTime + sessionSeconds);
-                updateStudyTimeToday();
-            } else {
-                timerInterval = setInterval(updateSessionTimer, 1000);
-                btn.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-                btn.classList.replace('bg-green-600', 'bg-red-600');
-                btn.classList.replace('hover:bg-green-700', 'hover:bg-red-700');
-            }
-        }
-
-        function updateSessionTimer() {
-            sessionSeconds++;
-            const h = Math.floor(sessionSeconds / 3600);
-            const m = Math.floor((sessionSeconds % 3600) / 60);
-            const s = sessionSeconds % 60;
-            document.getElementById('sessionTimer').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            if (sessionSeconds >= 14400) checkAchievements('marathon');
-        }
-
-        function resetTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = null;
-            sessionSeconds = 0;
-            document.getElementById('sessionTimer').textContent = '00:00:00';
-            const btn = document.getElementById('timerBtn');
-            btn.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-            btn.classList.replace('bg-red-600', 'bg-green-600');
-            btn.classList.replace('hover:bg-red-700', 'hover:bg-green-700');
-        }
-
-        function setPomodoro(minutes) {
-            resetTimer();
-            sessionSeconds = minutes * 60;
-            document.getElementById('sessionTimer').textContent = `${String(minutes).padStart(2, '0')}:00`;
-            // This is a simplified display, actual timer logic will handle countdown correctly
-        }
-
-        function updateStudyTimeToday() {
-            const today = new Date().toDateString();
-            const lastStudyDate = localStorage.getItem('lastStudyDate');
-            if (lastStudyDate !== today) {
-                localStorage.setItem('todayStudyTime', '0');
-                localStorage.setItem('lastStudyDate', today);
-            }
-            const todayTime = parseInt(localStorage.getItem('todayStudyTime') || '0');
-            const h = Math.floor(todayTime / 3600);
-            const m = Math.floor((todayTime % 3600) / 60);
-            document.getElementById('studyTimeToday').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        }
-
-        function updateStudyStreak() {
-            const today = new Date().toDateString();
-            const lastStreakDate = localStorage.getItem('lastStreakDate');
-            let streak = parseInt(localStorage.getItem('studyStreak') || '0');
-            if (lastStreakDate) {
-                const diffDays = Math.ceil(Math.abs(new Date(today) - new Date(lastStreakDate)) / (1000 * 60 * 60 * 24));
-                if (diffDays === 1) streak++;
-                else if (diffDays > 1) streak = 1;
-            } else streak = 1;
-            localStorage.setItem('studyStreak', streak);
-            localStorage.setItem('lastStreakDate', today);
-            document.getElementById('studyStreak').textContent = `${streak} days`;
-            if (streak >= 7) checkAchievements('streak_7');
-            if (streak >= 30) checkAchievements('streak_30');
-        }
-
-        function checkAchievements(trigger) {
-            achievements.forEach(a => {
-                if (!a.unlocked && !localStorage.getItem(`achievement_${a.id}`)) {
-                    let unlock = false;
-                    if (a.id === 'first_task' && trigger === 'task_complete') unlock = true;
-                    if (a.id === 'streak_7' && trigger === 'streak_7') unlock = true;
-                    if (a.id === 'streak_30' && trigger === 'streak_30') unlock = true;
-                    if (a.id === 'complete_cert' && trigger === 'complete_cert') unlock = true;
-                    if (a.id === 'halfway' && trigger === 'halfway') unlock = true;
-                    if (a.id === 'note_taker' && trigger === 'note_added' && certifications.filter((_, i) => loadNote(i)).length >= 5) unlock = true;
-                    if (unlock) unlockAchievement(a);
-                }
-            });
-            updateAchievementDisplay();
-        }
-
-        function unlockAchievement(achievement) {
-            achievement.unlocked = true;
-            localStorage.setItem(`achievement_${achievement.id}`, 'true');
-            showAchievementNotification(achievement);
-        }
-
-        function showAchievementNotification(achievement) {
-            const notification = document.getElementById('achievementNotification');
-            document.getElementById('achievementMessage').textContent = `${achievement.name} - ${achievement.description}`;
-            notification.classList.remove('hidden');
-            setTimeout(() => notification.classList.add('hidden'), 5000);
-        }
-
-        function updateAchievementDisplay() {
-            const unlocked = achievements.filter(a => localStorage.getItem(`achievement_${a.id}`)).length;
-            document.getElementById('achievementCount').textContent = `${unlocked}/${achievements.length}`;
-            const grid = document.getElementById('achievementGrid');
-            grid.innerHTML = achievements.map(a => {
-                const isUnlocked = localStorage.getItem(`achievement_${a.id}`);
-                return `<div class="tooltip-trigger relative"><div class="p-3 rounded-lg text-center ${isUnlocked ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-gray-100 dark:bg-gray-800'} transition-all hover:scale-110"><i class="fas ${a.icon} text-2xl ${isUnlocked ? 'text-yellow-500' : 'text-gray-400'}"></i></div><div class="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap z-10"><div class="font-bold">${a.name}</div><div>${a.description}</div></div></div>`;
-            }).join('');
-        }
-
-        function rotateQuote() {
-            document.getElementById('quoteText').textContent = quotes[Math.floor(Math.random() * quotes.length)];
-        }
-
-        function filterCertifications() {
-            currentFilter = document.getElementById('filterSelect').value;
-            renderCertifications();
-        }
-
-        function sortCertifications() {
-            currentSort = document.getElementById('sortSelect').value;
-            renderCertifications();
-        }
-
-        function toggleCalendarView() {
-            document.getElementById('calendarView').classList.toggle('hidden');
-        }
-
-        function generateChecklist(cert, index) {
-            const template = checklistTemplates[cert.type] || checklistTemplates.security;
-            let html = '', taskIndex = 0;
-            for (const [category, tasks] of Object.entries(template)) {
-                html += `<div class="task-category"><h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">${category}</h4><div class="space-y-2">`;
-                tasks.forEach(task => {
-                    const taskId = `task_${taskIndex}`;
-                    html += `<label class="flex items-start"><input type="checkbox" id="${index}_${taskId}" class="checkbox-custom h-4 w-4 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" onchange="saveProgress(${index}, '${taskId}', this.checked)" ${loadProgress(index, taskId) ? 'checked' : ''}><span class="ml-2 text-sm text-gray-700 dark:text-gray-300">${task}</span></label>`;
-                    taskIndex++;
-                });
-                html += `</div></div>`;
-            }
-            return html;
-        }
-
+        /**
+         * Creates and appends a certification card to the container.
+         * @param {object} cert - The certification object.
+         * @param {number} index - The index of the certification for unique IDs.
+         */
         function createCertCard(cert, index) {
             const examDate = new Date(cert.date);
             const card = document.createElement('div');
-            card.className = "glass-effect rounded-xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl";
-            card.dataset.type = cert.type;
-            card.dataset.index = index;
-            const checklist = generateChecklist(cert, index);
-            const circumference = 2 * Math.PI * 36;
-            const savedNote = loadNote(index);
-            const difficultyStars = Array(5).fill(0).map((_, i) => `<i class="fas fa-star ${i < cert.difficulty ? 'text-yellow-500' : 'text-gray-300 dark:text-gray-600'}"></i>`).join('');
-            const resourcesHtml = cert.resources.map(r => `<a href="${r.url}" class="inline-flex items-center px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-xs hover:bg-blue-200 dark:hover:bg-blue-800"><i class="fas ${ { book: 'fa-book', video: 'fa-video', exam: 'fa-file-alt', lab: 'fa-flask', docs: 'fa-file-lines', path: 'fa-route' }[r.type] || 'fa-link'} mr-1"></i>${r.name}</a>`).join(' ');
-            card.innerHTML = `<div class="flex flex-col md:flex-row md:items-center justify-between mb-4"><div class="flex-1"><div class="flex items-start justify-between"><div><h2 class="text-xl sm:text-2xl font-bold text-blue-800 dark:text-blue-400">${cert.name}</h2>${cert.subtitle ? `<p class="text-sm text-gray-500 dark:text-gray-400 font-medium">${cert.subtitle}</p>` : ''}</div><div class="ml-4"><span class="inline-block px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded text-xs font-semibold">${cert.vendor}</span></div></div><div class="flex items-center gap-4 mt-2 text-sm text-gray-600 dark:text-gray-400"><span><i class="fas fa-code mr-1"></i>${cert.examCode}</span><span><i class="fas fa-dollar-sign mr-1"></i>${cert.cost}</span><span title="Difficulty">${difficultyStars}</span></div><p class="text-sm text-gray-600 dark:text-gray-400 mt-2"><span class="font-semibold">Exam Date:</span> ${formatExamDate(examDate)}</p></div><div id="timer-${index}" class="flex items-center space-x-2 sm:space-x-4 text-center mt-4 md:mt-0 bg-gray-100 dark:bg-gray-800 p-3 rounded-lg"></div></div>${resourcesHtml ? `<div class="mb-4"><h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"><i class="fas fa-bookmark mr-1"></i>Study Resources</h4><div class="flex flex-wrap gap-2">${resourcesHtml}<button onclick="addCustomResource(${index})" class="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-700"><i class="fas fa-plus mr-1"></i>Add Resource</button></div></div>` : ''}<div class="mt-4"><div class="flex items-center justify-between mb-2"><span class="text-sm font-medium text-gray-700 dark:text-gray-300">Study Progress</span><span id="progress-text-${index}" class="text-sm text-gray-600 dark:text-gray-400">0/0 tasks completed (0%)</span></div><div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5"><div id="progress-${index}" class="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div></div></div><div class="flex items-center mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg"><div class="relative"><svg class="w-24 h-24"><circle cx="48" cy="48" r="36" stroke="#e5e7eb" stroke-width="8" fill="none" class="dark:stroke-gray-700"></circle><circle id="progress-ring-${index}" cx="48" cy="48" r="36" stroke="url(#gradient-${index})" stroke-width="8" fill="none" class="progress-ring-circle" stroke-linecap="round" style="stroke-dasharray: ${circumference} ${circumference}; stroke-dashoffset: ${circumference};"></circle><defs><linearGradient id="gradient-${index}"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs></svg><div class="absolute inset-0 flex items-center justify-center"><span id="percentage-text-${index}" class="text-2xl font-bold text-blue-700 dark:text-blue-400">0%</span></div></div><div class="flex-1 ml-4"><h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-1">Readiness Score</h3><p id="readiness-text-${index}" class="text-sm font-semibold text-gray-600">Just Beginning 📚</p><p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Complete all tasks to be fully prepared</p></div></div><div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"><h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-2"><i class="fas fa-sticky-note mr-2"></i>Personal Notes</h3><textarea id="notes-${index}" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-sm resize-none" rows="3" placeholder="Add your study notes, tips, or reminders here..." onblur="saveNote(${index}, this.value)">${savedNote}</textarea></div><div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"><h3 class="text-md font-semibold text-gray-700 dark:text-gray-300 mb-3"><i class="fas fa-tasks mr-2"></i>Study Checklist<button onclick="document.getElementById('checklist-${index}').classList.toggle('hidden')" class="ml-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">Toggle View</button></h3><div id="checklist-${index}" class="space-y-3 text-sm max-h-96 overflow-y-auto">${checklist}</div></div>`;
-            return card;
+            card.className = "bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-gray-200 transition-all duration-300 hover:shadow-xl hover:border-blue-300";
+            card.innerHTML = `
+                <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-blue-800">${cert.name}</h2>
+                        ${cert.subtitle ? `<p class="text-sm text-gray-500 font-medium">${cert.subtitle}</p>` : ''}
+                        <p class="text-sm text-gray-600 mt-2">
+                            <span class="font-semibold">Exam Date:</span> ${formatExamDate(examDate)}
+                        </p>
+                    </div>
+                    <!-- Countdown Timer -->
+                    <div id="timer-${index}" class="flex items-center space-x-2 sm:space-x-4 text-center mt-4 md:mt-0 bg-gray-100 p-3 rounded-lg">
+                        <!-- Countdown units will be generated here -->
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-md font-semibold text-gray-700 mb-2">Study Checklist</h3>
+                    <div class="space-y-2 text-sm">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-700">Review official exam objectives</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-700">Complete practice exams</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-gray-700">Identify and review weak areas</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
         }
 
-        function addCustomResource(certIndex) {
-            const name = prompt('Resource name:');
-            const url = prompt('Resource URL:');
-            if (name && url) {
-                certifications[certIndex].resources.push({ name, url, type: 'custom' });
-                renderCertifications();
-                checkAchievements('resource_hunter');
-            }
-        }
-
+        /**
+         * Updates the countdown timer for a specific certification.
+         * @param {object} cert - The certification object.
+         * @param {number} index - The index of the certification.
+         */
         function updateTimer(cert, index) {
             const timerElement = document.getElementById(`timer-${index}`);
             if (!timerElement) return;
-            const t = getTimeRemaining(cert.date);
-            if (t) {
-                const urgencyClass = t.days < 7 ? 'text-red-600 dark:text-red-400' : t.days < 30 ? 'text-orange-600 dark:text-orange-400' : 'text-blue-700 dark:text-blue-400';
-                timerElement.innerHTML = `<div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold ${urgencyClass}">${String(t.days).padStart(2, '0')}</span><span class="text-xs text-gray-500">Days</span></div><div class="text-xl sm:text-2xl font-bold text-gray-400">:</div><div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold ${urgencyClass}">${String(t.hours).padStart(2, '0')}</span><span class="text-xs text-gray-500">Hours</span></div><div class="text-xl sm:text-2xl font-bold text-gray-400">:</div><div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold ${urgencyClass}">${String(t.minutes).padStart(2, '0')}</span><span class="text-xs text-gray-500">Mins</span></div><div class="text-xl sm:text-2xl font-bold text-gray-400">:</div><div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold ${urgencyClass}">${String(t.seconds).padStart(2, '0')}</span><span class="text-xs text-gray-500">Secs</span></div>`;
-            } else {
-                timerElement.innerHTML = `<div class="text-lg font-bold text-green-600 dark:text-green-400">Exam day has arrived! Good luck! 🎉</div>`;
-                clearInterval(intervals[index]);
-            }
-        }
 
-        function renderCertifications() {
-            const container = document.getElementById('planner-container');
-            container.innerHTML = '';
-            let filtered = [...certifications];
-            if (currentFilter !== 'all') {
-                if (currentFilter === 'upcoming') filtered = filtered.filter(c => (Date.parse(c.date) - Date.now()) / (1000 * 60 * 60 * 24) <= 30);
-                else if (currentFilter === 'inprogress') filtered = filtered.filter((c, i) => Object.keys(localStorage).some(k => k.startsWith(`cert_${i}_task_`)));
-                else filtered = filtered.filter(c => c.type === currentFilter);
+            const t = getTimeRemaining(cert.date);
+
+            if (t) {
+                timerElement.innerHTML = `
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.days).padStart(2, '0')}</span><span class="text-xs text-gray-500">Days</span></div>
+                    <div class="text-xl sm:text-2xl font-bold text-gray-400">:</div>
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.hours).padStart(2, '0')}</span><span class="text-xs text-gray-500">Hours</span></div>
+                    <div class="text-xl sm:text-2xl font-bold text-gray-400">:</div>
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.minutes).padStart(2, '0')}</span><span class="text-xs text-gray-500">Mins</span></div>
+                    <div class="text-xl sm:text-2xl font-bold text-gray-400">:</div>
+                    <div class="flex flex-col"><span class="text-xl sm:text-2xl font-bold text-blue-700">${String(t.seconds).padStart(2, '0')}</span><span class="text-xs text-gray-500">Secs</span></div>
+                `;
+            } else {
+                timerElement.innerHTML = `<div class="text-lg font-bold text-green-600">Exam day has arrived! Good luck!</div>`;
+                clearInterval(intervals[index]); // Stop the timer
             }
-            filtered.sort((a, b) => {
-                if (currentSort === 'date') return new Date(a.date) - new Date(b.date);
-                if (currentSort === 'name') return a.name.localeCompare(b.name);
-                return 0; // Progress sort needs more complex logic
-            });
-            intervals.forEach(clearInterval);
-            intervals.length = 0;
-            filtered.forEach(cert => {
-                const originalIndex = certifications.indexOf(cert);
-                container.appendChild(createCertCard(cert, originalIndex));
-                setTimeout(() => updateProgressBar(originalIndex), 0);
-                updateTimer(cert, originalIndex);
-                intervals[originalIndex] = setInterval(() => updateTimer(cert, originalIndex), 1000);
-            });
         }
 
         // --- INITIALIZATION ---
         const intervals = [];
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCertifications();
-            updateTotalProgress();
-            updateStudyTimeToday();
-            updateStudyStreak();
-            updateAchievementDisplay();
-            rotateQuote();
-            setInterval(rotateQuote, 30000);
-            const hour = new Date().getHours();
-            if (hour >= 22 || hour < 6) checkAchievements('night_owl');
-            if (hour >= 4 && hour < 6) checkAchievements('early_bird');
+
+        // Sort certifications by date
+        certifications.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Create cards and start timers
+        certifications.forEach((cert, index) => {
+            createCertCard(cert, index);
+            updateTimer(cert, index); // Initial call to display immediately
+            intervals[index] = setInterval(() => updateTimer(cert, index), 1000);
         });
     </script>
 </body>
 </html>
-�
